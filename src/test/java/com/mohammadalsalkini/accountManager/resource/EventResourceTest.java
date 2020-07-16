@@ -26,11 +26,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @project accountManager
@@ -82,21 +85,19 @@ public class EventResourceTest {
     }
 
     @Test
-    public void retrieveAllEvents() {
+    public void should_GetEvent() throws Exception {
 
+        Account account = new Account(1, "test");
+        Event event = new Event(1, "", LocalDateTime.now());
+        account.addEvent(event);
 
+        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+
+        mockMvc.perform(get("/api/accounts/1/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
     }
-
-//    @Test
-//    public void should_create_an_event_and_return_created_status() throws Exception {
-//        Event event = new Event(1, "My new account");
-//
-//        mockMvc.perform(post("/api/accounts")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(json(account)))
-//                .andExpect(status().isCreated())
-//                .andExpect(header().string("Location", is("http://localhost/api/accounts/1")))
-//                .andExpect(content().string(""))
-//                .andDo(MockMvcResultHandlers.print());
-//    }
 }
